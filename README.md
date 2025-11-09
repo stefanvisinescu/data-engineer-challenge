@@ -121,3 +121,11 @@ After running the pipeline, you should see data like:
 - Step 3 (optional features) was not implemented to focus on core requirements and solution design
 - Database schema includes tables for resampling (`measurements_1min`) and data quality tracking, ready for future implementation
 
+---
+
+## Part Two: Solution Design
+
+### 📋 [View Solution Design →](SOLUTION_DESIGN.md)
+
+*Production-scale architecture design using Azure and Docker - how I would approach this at enterprise scale*
+
