@@ -50,11 +50,11 @@ Generator -> MQTT Broker -> Collector -> PostgreSQL + Raw Files
 
 ## Results
 
-sensor_id | count
-----------+-------
-Sensor 1  | 120
-Sensor 2  | 120
-Sensor 3  | 120
-Sensor 4  | 119
-Sensor 5  | 119
+|sensor_id | count|
+|--------|-------|
+|Sensor 1  | 120|
+|Sensor 2  | 120|
+|Sensor 3  | 120|
+|Sensor 4  | 119|
+|Sensor 5  | 119|
 
