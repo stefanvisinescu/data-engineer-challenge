@@ -1,0 +1,4 @@
+paho-mqtt==1.6.1
+pydantic==2.12
+pydantic-settings==2.11
+python-dotenv==1.0.0

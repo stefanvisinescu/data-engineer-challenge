@@ -1,0 +1,4 @@
+paho-mqtt==1.6.1
+pydantic==2.12
+psycopg2-binary==2.9.9
+pandas==2.1.1

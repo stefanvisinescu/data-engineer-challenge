@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+
+# Docker
+*.env
+*.log
+data/raw/
+data/resampled/
+
+# VS Code
+.vscode/

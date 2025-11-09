@@ -1,0 +1,149 @@
+services:
+  # ============================================
+  # MQTT Broker - Eclipse Mosquitto
+  # ============================================
+  mqtt_broker:
+    image: eclipse-mosquitto:2.0
+    container_name: mqtt_broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mqtt_data:/mosquitto/data
+      - mqtt_logs:/mosquitto/log
+    networks:
+      - iot_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 mosquitto_sub -t '$SYS/#' -C 1 || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_DB: iot_data
+      POSTGRES_USER: iot_user
+      POSTGRES_PASSWORD: iot_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - iot_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iot_user -d iot_data"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # IoT Data Generator
+  # ============================================
+  iot_data_generator:
+    build:
+      context: ./iot_data_generator
+      dockerfile: Dockerfile
+    container_name: iot_generator
+    depends_on:
+      mqtt_broker:
+        condition: service_healthy
+    environment:
+      # MQTT Configuration
+      MQTT__HOST: mqtt_broker
+      MQTT__PORT: 1883
+      MQTT__USERNAME: ""
+      MQTT__PASSWORD: ""
+      # Publisher Configuration
+      PUBLISHER__TOPIC: sensors/readings
+      PUBLISHER__INTERVAL: 1
+      PUBLISHER__QOS: 1
+      # Logging Configuration
+      LOGGING__LEVEL: INFO
+    volumes:
+      - ./iot_data_generator/sensors.json:/app/sensors.json:ro
+    networks:
+      - iot_network
+    restart: unless-stopped
+
+  # ============================================
+  # Data Collector Service
+  # ============================================
+  collector:
+    build:
+      context: ./collector
+      dockerfile: Dockerfile
+    container_name: collector
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mqtt_broker:
+        condition: service_healthy
+    environment:
+      MQTT_BROKER_HOST: mqtt_broker
+      MQTT_BROKER_PORT: 1883
+      MQTT_TOPIC: sensors/#
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: iot_data
+      DB_USER: iot_user
+      DB_PASSWORD: iot_password
+      RAW_DATA_PATH: /data/raw
+      BUFFER_SIZE: 100
+      FLUSH_INTERVAL: 5
+    volumes:
+      - ./data/raw:/data/raw
+      - ./data/resampled:/data/resampled
+    networks:
+      - iot_network
+    restart: unless-stopped
+
+  # ============================================
+  # pgAdmin - Database Management (Optional)
+  # ============================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@axpo.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - iot_network
+    restart: unless-stopped
+    profiles:
+      - admin
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  iot_network:
+    driver: bridge
+    name: iot_network
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  mqtt_data:
+    name: mqtt_data
+  mqtt_logs:
+    name: mqtt_logs
+  postgres_data:
+    name: postgres_data
+  pgadmin_data:
+    name: pgadmin_data

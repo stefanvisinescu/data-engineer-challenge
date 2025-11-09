@@ -1,0 +1,44 @@
+{
+  "sensors": [
+    {
+      "id": "Sensor 1",
+      "location": {"lat": 10, "lng": 10},
+      "type": "temperature",
+      "unit": "C",
+      "range": {"min": 0, "max": 45},
+      "description": "Main Entrance"
+    },
+    {
+      "id": "Sensor 2",
+      "location": {"lat": 90, "lng": 90},
+      "type": "temperature",
+      "unit": "C",
+      "range": {"min": 0, "max": 45},
+      "description": "Kitchen"
+    },
+    {
+      "id": "Sensor 3",
+      "location": {"lat": 90, "lng": 10},
+      "type": "temperature",
+      "unit": "C",
+      "range": {"min": 0, "max": 45},
+      "description": "Deposit"
+    },
+    {
+      "id": "Sensor 4",
+      "location": {"lat": 10, "lng": 90},
+      "type": "temperature",
+      "unit": "C",
+      "range": {"min": 0, "max": 45},
+      "description": "Assembly Floor"
+    },
+    {
+      "id": "Sensor 5",
+      "location": {"lat": 50, "lng": 50},
+      "type": "temperature",
+      "unit": "C",
+      "range": {"min": 0, "max": 45},
+      "description": "Offices"
+    }
+  ]
+}
